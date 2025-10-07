@@ -1,9 +1,11 @@
+import 'react-toastify/dist/ReactToastify.css';
+
 body {
   margin: 0;
   font-family: 'Roboto', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #f4f6f8;
+  background-color: #f0f2f5; /* Lighter background for admin */
 }
 
 code {

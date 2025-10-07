@@ -1,35 +1,54 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState, useEffect } from 'react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { auth } from './firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+import Auth from './components/Auth';
+import BorrowForm from './components/BorrowForm';
+import HomePage from './pages/HomePage';
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#5e35b1', // Deep Purple
+    },
+    secondary: {
+      main: '#ffb300', // Amber
+    },
+  },
+  typography: {
+    fontFamily: 'Roboto, sans-serif',
+    h4: {
+      fontWeight: 600,
+    },
+  },
+});
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+      // No automatic redirection on login, HomePage will handle initial display
+    });
+    return () => unsubscribe();
+  }, []);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <ThemeProvider theme={theme}>
+      <Routes>
+        <Route path="/" element={<HomePage currentUser={user} />} />
+        <Route path="/login" element={<Auth />} />
+        <Route path="/borrow/:documentId" element={<BorrowForm user={user} />} />
+      </Routes>
+      <ToastContainer position="bottom-right" />
+    </ThemeProvider>
+  );
 }
 
-export default App
+export default App;
